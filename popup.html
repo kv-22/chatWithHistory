@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>History Q&A</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            width: 200px;
+            /* Set a width for the popup */
+            height: 200px;
+            /* Set a height for the popup */
+            padding: 20px;
+            /* Add some padding for spacing */
+        }
+
+        #question {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        #answer {
+            margin-top: 10px;
+            overflow: auto; /* for a scrollbar when wesbites are more */
+            max-height: 100px;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Ask anything about your history</h1>
+    <input type="text" id="question" placeholder="Enter your question">
+    <button id="ask">Ask</button>
+    <div id="answer"></div>
+    <script src="popup.js"></script>
+</body>
+
+</html>
