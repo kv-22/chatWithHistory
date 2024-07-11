@@ -34,7 +34,7 @@ def generate_response(url_content:dict, question:str):
     #     print(node.text)
     #     print('\n\n')
         
-    query_engine = RetrieverQueryEngine.from_args(retriever, response_mode='refine', text_qa_template=qa_template) #
+    query_engine = RetrieverQueryEngine.from_args(retriever, response_mode='simple_summarize', text_qa_template=qa_template) #
     
     response = query_engine.query(question)
     
