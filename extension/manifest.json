@@ -1,28 +1,32 @@
 {
-    "name": "BrowseBack",
-    "manifest_version": 3,
-    "version":"1.0",
-    "description": "Ask any question about your browsing history to GPT!",
-    "action": {
-        "default_title": "BrowseBack",
-        "default_popup": "popup.html",
-        "default_icon": "Icon.png"
-      },
-    "host_permissions": [
-        "https://api.openai.com/v1/completions"
-       
-    ],
-    "permissions": [
-        "storage", "activeTab", "scripting"
-    ],
-    "content_scripts": [
-        {
-          "matches": ["<all_urls>"],
-          "js": ["content.js"],
-          "exclude_matches": ["*://*/*search*"]
-        }
+  "name": "BrowseBack",
+  "manifest_version": 3,
+  "version": "1.0",
+  "description": "Ask any question about your browsing history to GPT!",
+  "action": {
+    "default_title": "BrowseBack",
+    "default_popup": "popup.html",
+    "default_icon": "Icon.png"
+  },
+  "host_permissions": [
+    "https://api.openai.com/v1/completions"
+  ],
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "exclude_matches": [
+        "*://*/*search*"
       ]
+    }
+  ]
 }
-
-
-  

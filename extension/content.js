@@ -1,8 +1,6 @@
 function extractContent() {
   let web_url = document.URL;
-  let content = document.body.innerText.trim();
-  content = content.replace(/\s+/g, ' ').trim(); // remove new lines and extra spaces
-  console.log(content);
+  let content = document.body.innerHTML;
   return { web_url, content };
 }
 
@@ -14,7 +12,7 @@ function showIndicator() {
   indicator.style.right = '5px';
   indicator.style.backgroundColor = '#F0FFFF';
   indicator.style.fontSize = '12px',
-  indicator.style.padding = '2px';
+    indicator.style.padding = '2px';
   document.body.appendChild(indicator);
 }
 

@@ -16,13 +16,8 @@ async def get_answer(content: Content):
     question = content.question
    
     print("Received")
-    response = generate_response(url_and_content, question)
-   
-    # text=''
-    # for key, value in url_and_content.items():
-    #     text += "Website: " + key + "\n" + value + "\n\n"
-    # print(text)
     
+    response = generate_response(url_and_content, question)
     print(response)
     
     # Return a response
