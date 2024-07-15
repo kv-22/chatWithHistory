@@ -8,19 +8,30 @@ document.getElementById('ask').onclick = async () => { // async to use await
 
     try {
       if (question) {
-        const response = await fetch(server_url + '/content', { // wait until response arrives
+        const response = await fetch(server_url + '/parse', { // wait until response arrives
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            "url_and_content": content,
+            "url_and_content": content
+          })
+        });
+        const data = await response.text();
+        console.log(data);
+
+
+        const response_query = await fetch(server_url + '/query_history', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
             "question": question
           })
         });
-        const data = await response.json();
-        console.log(data.message);
-        const text = data.answer['response'];
+        const data_query = await response_query.json();
+        const text = data_query.answer['response'];
         console.log(text);
 
         if (text != 'None') {

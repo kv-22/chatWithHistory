@@ -12,7 +12,8 @@ function showIndicator() {
   indicator.style.right = '5px';
   indicator.style.backgroundColor = '#F0FFFF';
   indicator.style.fontSize = '12px',
-    indicator.style.padding = '2px';
+  indicator.style.padding = '2px';
+  indicator.style.zIndex = 9999;
   document.body.appendChild(indicator);
 }
 
