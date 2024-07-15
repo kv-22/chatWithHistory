@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from rag_llama import parse_and_store, add_nodes, index_exists, create_index, build_index, retrieve, query_history, query
+from rag_llama import parse_and_store, add_nodes, create_index, build_index, retrieve, query_history, query
 import uvicorn
 
 

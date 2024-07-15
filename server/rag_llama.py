@@ -34,12 +34,15 @@ def parse_and_store(url_content: dict):
         node.text = re.sub(r'\s+', ' ', node.text).strip()
         print("*****************************************")
         print(node.text)
+        
+    create_index(nodes)
     
-    if not index_exists():
-        create_index(nodes)
-    else:
-        index = build_index()
-        index.insert_nodes(nodes)
+    # if not index_exists():
+    #     create_index(nodes)
+    # else:
+    #     print('exists')
+    #     index = build_index()
+    #     index.insert_nodes(nodes)
         
     return 'Parsed and Stored Successfully.'
 
@@ -50,22 +53,25 @@ def add_nodes(text_list):
     parser = SentenceSplitter()
     nodes = parser.get_nodes_from_documents(documents)
     
-    if not index_exists():
-        create_index(nodes)
-    else:
-        index = build_index()
-        index.insert_nodes(nodes)
+    create_index(nodes)
+    
+    # if not index_exists():
+    #     create_index(nodes)
+    # else:
+    #     print('exists')
+    #     index = build_index()
+    #     index.insert_nodes(nodes)
         
     return 'Saved nodes successfully.'
 
         
-def index_exists():
-    # check if index exists
-    persist_directory = './storage/index'
-    index_files = ['default__vector_store.json', 'docstore.json', 'index_store.json', 'graph_store.json', 'image__vector_store.json']
-    index_exists = all(os.path.exists(os.path.join(persist_directory, file)) for file in index_files)
+# def index_exists():
+#     # check if index exists
+#     persist_directory = './storage/index'
+#     index_files = ['default__vector_store.json', 'docstore.json', 'index_store.json', 'graph_store.json', 'image__vector_store.json']
+#     index_exists = all(os.path.exists(os.path.join(persist_directory, file)) for file in index_files)
     
-    return index_exists
+#     return index_exists
 
 def create_index(nodes):
     index = VectorStoreIndex(nodes)
@@ -118,10 +124,7 @@ def query(question):
     query_engine = index.as_query_engine()
     response = query_engine.query(question)
     return response
-
-
-
-    
+  
     
     
     
