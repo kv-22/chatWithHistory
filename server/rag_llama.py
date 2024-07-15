@@ -38,7 +38,6 @@ def parse_and_store(url_content: dict):
     if not index_exists():
         create_index(nodes)
     else:
-        print('exists')
         index = build_index()
         index.insert_nodes(nodes)
         
@@ -63,14 +62,16 @@ def add_nodes(text_list):
 def index_exists():
     # check if index exists
     persist_directory = './storage/index'
-    index_files = ['vector_store.json', 'docstore.json', 'index_store.json']
+    index_files = ['default__vector_store.json', 'docstore.json', 'index_store.json', 'graph_store.json', 'image__vector_store.json']
     index_exists = all(os.path.exists(os.path.join(persist_directory, file)) for file in index_files)
+    
     return index_exists
 
 def create_index(nodes):
     index = VectorStoreIndex(nodes)
     index.set_index_id("knowledge_tracing")
     index.storage_context.persist("./storage/index")
+    
     
 def build_index():
     # rebuild storage context
