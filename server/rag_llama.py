@@ -14,6 +14,7 @@ import requests
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core import StorageContext, load_index_from_storage
 from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core.postprocessor import SimilarityPostprocessor
 
 
 load_dotenv()
@@ -88,7 +89,7 @@ def build_index():
 
 def retrieve(question):
     index = build_index()
-    retriever = index.as_retriever()
+    retriever = index.as_retriever(similarity_top_k=10)
     nodes = retriever.retrieve(question)
     text = ''
     for node in nodes:
@@ -114,7 +115,7 @@ def query_history(question):
         )
     
     qa_template = PromptTemplate(template)
-    query_engine = index.as_query_engine(text_qa_template=qa_template)
+    query_engine = index.as_query_engine(text_qa_template=qa_template, similarity_top_k=10)
     response = query_engine.query(question)
     print(response.source_nodes)
     return response
