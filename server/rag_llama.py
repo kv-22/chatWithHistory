@@ -20,7 +20,9 @@ from llama_index.core.postprocessor import SimilarityPostprocessor
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 Settings.llm = OpenAI(temperature=0.0, model="gpt-3.5-turbo", api_key=OPENAI_API_KEY)
-Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
+Settings.embed_model = HuggingFaceEmbedding(
+    model_name="BAAI/bge-small-en-v1.5"
+)
 
 
 # refactoring..
@@ -48,7 +50,7 @@ def parse_and_store(url_content: dict):
     return 'Parsed and Stored Successfully.'
 
         
-def add_nodes(text_list):
+def addNodes(text_list):
     
     documents = [Document(text=t) for t in text_list]
     parser = SentenceSplitter()
@@ -130,8 +132,6 @@ def query(question):
     
     
     
-    
-
     
     
     
