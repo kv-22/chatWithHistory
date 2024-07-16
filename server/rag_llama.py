@@ -1,16 +1,11 @@
 from llama_index.core import VectorStoreIndex, Document
-from llama_index.core.retrievers import VectorIndexRetriever
-from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.llms.openai import OpenAI
 from llama_index.core import Settings
 from dotenv import load_dotenv
 import os
 from llama_index.core import PromptTemplate
 from llama_index.core.node_parser import HTMLNodeParser
-from llama_index.embeddings.openai import OpenAIEmbedding
 import re
-from llama_index.core import get_response_synthesizer
-import requests
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core import StorageContext, load_index_from_storage
 from llama_index.core.node_parser import SentenceSplitter
@@ -35,8 +30,6 @@ def parse_and_store(url_content: dict):
     
     for node in nodes:
         node.text = re.sub(r'\s+', ' ', node.text).strip()
-        print("*****************************************")
-        print(node.text)
         
     create_index(nodes)
     
@@ -99,10 +92,6 @@ def retrieve(question):
     return text
         
 def query_history(question):
-    
-    print("MEOW")
-    text = retrieve(question)
-    print(text)
     
     index = build_index()
     template = (
