@@ -115,7 +115,7 @@ def query_history(question):
         )
     
     qa_template = PromptTemplate(template)
-    query_engine = index.as_query_engine(text_qa_template=qa_template, similarity_top_k=10)
+    query_engine = index.as_query_engine(text_qa_template=qa_template, similarity_top_k=10, node_postprocessors=[SimilarityPostprocessor(similarity_cutoff=0.7)])
     response = query_engine.query(question)
     print(response.source_nodes)
     return response
