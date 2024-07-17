@@ -13,6 +13,7 @@ class Notes(BaseModel):
 class Question(BaseModel):
     question: str
 
+
 app = FastAPI()
 
 
@@ -36,9 +37,9 @@ async def add_nodes(text: Notes):
     response = addNodes(text.notes)
     return response
 
-@app.get("/retrieve")
-async def retrieve_content():
-    response = retrieve()
+@app.post("/retrieve")
+async def retrieve_content(ques: Question):
+    response = retrieve(ques.question)
     return {"message": "Retrieved successfully.", "answer": response}
 
 @app.post("/query")

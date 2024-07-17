@@ -12,6 +12,7 @@ from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.postprocessor import SimilarityPostprocessor
 
 
+
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 Settings.llm = OpenAI(temperature=0.0, model="gpt-3.5-turbo", api_key=OPENAI_API_KEY)
@@ -32,6 +33,7 @@ def parse_and_store(url_content: dict):
         node.text = re.sub(r'\s+', ' ', node.text).strip()
         
     create_index(nodes)
+    
     
     # if not index_exists():
     #     create_index(nodes)
@@ -92,6 +94,8 @@ def retrieve(question):
     return text
         
 def query_history(question):
+    x=retrieve(question)
+    print(x)
     
     index = build_index()
     template = (
@@ -117,7 +121,15 @@ def query(question):
     response = query_engine.query(question)
     return response
   
+
+ 
     
+    
+
+
+
+
+
     
     
     
