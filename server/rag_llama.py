@@ -24,7 +24,7 @@ Settings.embed_model = HuggingFaceEmbedding(
 # refactoring..
 
 def parse_and_store(url_content: dict):
-    documents = [Document(text=content, metadata={"url": url}, excluded_embed_metadata_keys = ["urls"]) for url, content in url_content.items()]
+    documents = [Document(text=content, metadata={"url": url}, excluded_embed_metadata_keys = ["url"]) for url, content in url_content.items()]
     
     parser = HTMLNodeParser(tags=["p"])
     nodes = parser.get_nodes_from_documents(documents)
@@ -33,14 +33,6 @@ def parse_and_store(url_content: dict):
         node.text = re.sub(r'\s+', ' ', node.text).strip()
         
     create_index(nodes)
-    
-    
-    # if not index_exists():
-    #     create_index(nodes)
-    # else:
-    #     print('exists')
-    #     index = build_index()
-    #     index.insert_nodes(nodes)
         
     return 'Parsed and Stored Successfully.'
 
@@ -53,23 +45,9 @@ def addNodes(text_list):
     
     create_index(nodes)
     
-    # if not index_exists():
-    #     create_index(nodes)
-    # else:
-    #     print('exists')
-    #     index = build_index()
-    #     index.insert_nodes(nodes)
         
     return 'Saved nodes successfully.'
 
-        
-# def index_exists():
-#     # check if index exists
-#     persist_directory = './storage/index'
-#     index_files = ['default__vector_store.json', 'docstore.json', 'index_store.json', 'graph_store.json', 'image__vector_store.json']
-#     index_exists = all(os.path.exists(os.path.join(persist_directory, file)) for file in index_files)
-    
-#     return index_exists
 
 def create_index(nodes):
     index = VectorStoreIndex(nodes)
@@ -93,38 +71,23 @@ def retrieve(question):
         text = text + node.text + "\n\n"
     return text
         
-def query_history(question):
-    x=retrieve(question)
-    print(x)
-    
-    index = build_index()
-    template = (
-        "Context information is below. \n"
-        "---------------------\n"
-        "{context_str}"
-        "\n---------------------\n"
-        "Given the context information and not prior knowledge, answer the query."
-        "{query_str}\n"
-        "Provide only the URLs of all the websites that answer the query. If none of the websites answer the query, return 'None'."
-        "Answer:"
-        )
-    
-    qa_template = PromptTemplate(template)
-    query_engine = index.as_query_engine(text_qa_template=qa_template, similarity_top_k=10, node_postprocessors=[SimilarityPostprocessor(similarity_cutoff=0.7)])
-    response = query_engine.query(question)
-    print(response.source_nodes)
-    return response
 
 def query(question):
     index = build_index()
-    query_engine = index.as_query_engine()
+    query_engine = index.as_query_engine(similarity_top_k=10, node_postprocessors=[SimilarityPostprocessor(similarity_cutoff=0.7)])
     response = query_engine.query(question)
-    return response
+    print(response.source_nodes)
+    
+    url_list = [node.metadata['url'] for node in response.source_nodes if node.metadata]
+    response_and_url = {'gpt_answer': response.response, 'urls': url_list}
+    
+    if url_list:
+        return response_and_url
+    else: 
+        return response.response
   
 
  
-    
-    
 
 
 

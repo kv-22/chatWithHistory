@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from rag_llama import parse_and_store, addNodes, retrieve, query_history, query
+from rag_llama import parse_and_store, addNodes, retrieve, query
 import uvicorn
 
 
@@ -24,12 +24,6 @@ async def get_parse(content: Content):
     url_and_content = content.url_and_content
     response = parse_and_store(url_and_content)
     return response
-
-@app.post("/query_history")
-async def get_answer_history(ques: Question):
-    response = query_history(ques.question) # to query history because the prompt is different
-    print(response)
-    return {"message": "Chat completed successfully.", "answer": response}
     
     
 @app.post("/add_nodes")
@@ -45,7 +39,7 @@ async def retrieve_content(ques: Question):
 @app.post("/query")
 async def get_answer_general(ques: Question):
     response = query(ques.question) # for querying anything other than history
-    return {"message": "Chat comepleted successfully.", "answer": response}
+    return {"message": "Chat completed successfully.", "answer": response}
     
     
 if __name__ == "__main__":

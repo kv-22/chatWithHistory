@@ -21,7 +21,7 @@ document.getElementById('ask').onclick = async () => { // async to use await
         console.log(data);
 
 
-        const response_query = await fetch(server_url + '/query_history', {
+        const response_query = await fetch(server_url + '/query', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -31,35 +31,35 @@ document.getElementById('ask').onclick = async () => { // async to use await
           })
         });
         const data_query = await response_query.json();
-        const text = data_query.answer['response'];
+        console.log(data_query.answer);
+        const text = data_query.answer['gpt_answer'];
         console.log(text);
+        const urls = data_query.answer['urls']
 
-        if (text != 'None') {
-          const urls = text.split(/\s+/);
+        let resultDiv = document.getElementById('answer');
 
-          let resultDiv = document.getElementById('answer');
-          resultDiv.innerHTML = '';
+        // Clear any existing content in resultDiv
+        resultDiv.innerHTML = '';
 
-          // for displaying each url as a link and making them redirectable 
-          urls.forEach(url => {
-            if (isValidURL(url)) {
-              let anchor = document.createElement('a');
-              anchor.href = url;
-              anchor.textContent = url;
-              anchor.target = '_blank'; // Open link in a new tab
-              resultDiv.appendChild(anchor);
+        // Display text
+        resultDiv.innerText = text + "\n\nSources:\n\n";
 
-              // Add a line break for better readability
-              resultDiv.appendChild(document.createElement('br'));
+        // Display URLs
+        urls.forEach(url => {
+          if (isValidURL(url)) {
+            let anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.textContent = url;
+            anchor.target = '_blank'; // Open link in a new tab
 
-            }
+            // Add the anchor element and a line break to resultDiv
+            resultDiv.appendChild(anchor);
+            resultDiv.appendChild(document.createElement('br'));
+            resultDiv.appendChild(document.createElement('br'));
+          }
+        });
 
-          });
 
-        } else {
-          document.getElementById('answer').innerText = text;
-
-        }
 
       }
     } catch (error) {
@@ -96,6 +96,3 @@ function isValidURL(text) {
     return false;
   }
 }
-
-
-
