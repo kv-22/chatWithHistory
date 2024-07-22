@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from rag_llama import parse_and_store, addNodes, retrieve, query
 import uvicorn
-
+from fastapi.middleware.cors import CORSMiddleware
 
 class Content(BaseModel):
     url_and_content: dict
@@ -15,7 +15,13 @@ class Question(BaseModel):
 
 
 app = FastAPI()
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 # refactoring..
 
