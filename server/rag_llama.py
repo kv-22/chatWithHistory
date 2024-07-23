@@ -64,7 +64,7 @@ def build_index():
 
 def retrieve(question):
     index = build_index()
-    retriever = index.as_retriever(similarity_top_k=10)
+    retriever = index.as_retriever(similarity_top_k=3)
     nodes = retriever.retrieve(question)
     text = ''
     for node in nodes:
