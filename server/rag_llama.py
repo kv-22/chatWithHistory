@@ -37,7 +37,7 @@ def parse_and_store(url_content: dict):
         
 def addNodes(all_notes):
     documents = [Document(text=" ".join(notes), id_ = url) for url, notes in all_notes.items()]
-    # documents = [Document(text=t) for t in all_notes]
+    # documents = [Document(text=t) for t in all_notes] # old
     parser = SentenceSplitter()
     nodes = parser.get_nodes_from_documents(documents)
     
