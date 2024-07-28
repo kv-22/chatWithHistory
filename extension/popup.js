@@ -2,44 +2,29 @@ const server_url = 'http://127.0.0.1:8000'
 
 document.getElementById('ask').onclick = async () => { // async to use await 
   try {
-    let content = await getContent(); // wait until promise is resolved
-    console.log(content);
+
     const question = document.getElementById('question').value;
+    if (question) {
+      const response_query = await fetch(server_url + '/query', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          "question": question
+        })
+      });
+      const data_query = await response_query.json();
+      console.log(data_query.answer);
+      const text = data_query.answer['gpt_answer'];
+      console.log(text);
+      const urls = data_query.answer['urls'];
+      let resultDiv = document.getElementById('answer');
 
-    try {
-      if (question) {
-        const response = await fetch(server_url + '/parse', { // wait until response arrives
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            "url_and_content": content
-          })
-        });
-        const data = await response.text();
-        console.log(data);
+      // Clear any existing content in resultDiv
+      resultDiv.innerHTML = '';
 
-
-        const response_query = await fetch(server_url + '/query', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            "question": question
-          })
-        });
-        const data_query = await response_query.json();
-        console.log(data_query.answer);
-        const text = data_query.answer['gpt_answer'];
-        console.log(text);
-        const urls = data_query.answer['urls']
-
-        let resultDiv = document.getElementById('answer');
-
-        // Clear any existing content in resultDiv
-        resultDiv.innerHTML = '';
+      if (text) {
 
         // Display text
         resultDiv.innerText = text + "\n\nSources:\n\n";
@@ -59,34 +44,16 @@ document.getElementById('ask').onclick = async () => { // async to use await
           }
         });
 
-
+      } else {
+        resultDiv.innerText = 'None of the websites you visited answered the query :(';
 
       }
-    } catch (error) {
-      console.log(error.message);
+
     }
-
   } catch (error) {
-    console.error("Error retrieving content:", error);
+    console.log(error.message);
   }
-
-
 };
-
-function getContent() {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.get('storage_container', result => {
-      let content_dict = {};
-      const storage_container = result.storage_container || {}; // get the storage container
-
-      for (let key in storage_container) {
-        content_dict[key] = storage_container[key];
-      }
-
-      resolve(content_dict);
-    });
-  });
-}
 
 function isValidURL(text) {
   try {

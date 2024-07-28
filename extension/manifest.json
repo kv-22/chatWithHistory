@@ -8,14 +8,14 @@
     "default_popup": "popup.html",
     "default_icon": "Icon.png"
   },
-  "host_permissions": [
-    "https://api.openai.com/v1/completions"
-  ],
   "permissions": [
     "storage",
     "activeTab",
     "scripting"
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "matches": [
