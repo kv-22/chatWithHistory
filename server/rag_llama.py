@@ -16,7 +16,7 @@ Settings.llm = OpenAI(temperature=0.0, model="gpt-3.5-turbo", api_key=OPENAI_API
 Settings.embed_model = OpenAIEmbedding()
 
 def parse_and_store(url_content: dict):
-    documents = [Document(text=content, metadata={"url": url}, excluded_embed_metadata_keys = ["url"]) for url, content in url_content.items()]
+    documents = [Document(text=content, metadata={"url": url, "category": "history"}, excluded_embed_metadata_keys = ["url"]) for url, content in url_content.items()]
     
     parser = HTMLNodeParser(tags=["p"])
     nodes = parser.get_nodes_from_documents(documents)
@@ -36,8 +36,7 @@ def parse_and_store(url_content: dict):
 
         
 def addNodes(all_notes):
-    documents = [Document(text=" ".join(notes), id_ = url) for url, notes in all_notes.items()]
-    # documents = [Document(text=t) for t in all_notes] # old
+    documents = [Document(text=" ".join(notes), id_ = url, metadata={"category": "note"}) for url, notes in all_notes.items()]
     parser = SentenceSplitter()
     nodes = parser.get_nodes_from_documents(documents)
     
@@ -87,7 +86,8 @@ def query(question):
     response = query_engine.query(question)
     print(response.source_nodes)
     
-    url_list = [node.metadata['url'] for node in response.source_nodes if node.metadata]
+    url_list = [node.metadata['url'] for node in response.source_nodes if node.metadata['category']=='history']
+    print(url_list)
     response_and_url = {'gpt_answer': response.response, 'urls': url_list}
     if url_list:
         return response_and_url
@@ -102,7 +102,7 @@ def update_index(all_notes):
         print(id)
         if id in index.ref_doc_info:
             print('doc exists')
-            doc = Document(text=" ".join(note), id_=id)
+            doc = Document(text=" ".join(note), id_=id, metadata={"category": "note"})
             index.update_ref_doc(doc, update_kwargs={"delete_kwargs": {"delete_from_docstore": True}})
             index.storage_context.persist(persist_dir="./storage/index")
             
