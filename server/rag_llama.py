@@ -9,6 +9,7 @@ from llama_index.core import StorageContext, load_index_from_storage
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.postprocessor import SimilarityPostprocessor
 from llama_index.embeddings.openai import OpenAIEmbedding
+from llama_index.core.vector_stores.types import ExactMatchFilter, MetadataFilters
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
@@ -71,8 +72,11 @@ def build_index():
     return simple_vc_index
 
 def retrieve(question):
+    filters = MetadataFilters(filters=[ExactMatchFilter(
+        key="category", 
+        value='note')])
     index = build_index()
-    retriever = index.as_retriever(similarity_top_k=3)
+    retriever = index.as_retriever(similarity_top_k=3, filters=filters)
     nodes = retriever.retrieve(question)
     text = ''
     for node in nodes:
