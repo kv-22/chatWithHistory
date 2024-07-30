@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from rag_llama import parse_and_store, addNodes, retrieve, query
+from rag_llama import parse_and_store, addNodes, retrieve, query, update_index
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -15,6 +15,7 @@ class Question(BaseModel):
 
 
 app = FastAPI()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allows all origins
@@ -31,10 +32,16 @@ async def get_parse(content: Content):
     response = parse_and_store(url_and_content)
     return response
     
-    
+# old    
+# @app.post("/add_nodes")
+# async def add_nodes(text: Notes):
+#     response = addNodes(text.notes)
+#     return response
+
+# new
 @app.post("/add_nodes")
-async def add_nodes(text: Notes):
-    response = addNodes(text.notes)
+async def add_nodes(nodes: Content):
+    response = addNodes(nodes.url_and_content)
     return response
 
 @app.post("/retrieve")
@@ -44,9 +51,14 @@ async def retrieve_content(ques: Question):
 
 @app.post("/query")
 async def get_answer_general(ques: Question):
-    response = query(ques.question) # for querying anything other than history
+    response = query(ques.question)
     return {"message": "Chat completed successfully.", "answer": response}
     
-    
+# new endpoint for updating notes
+@app.post("/update_nodes")
+async def update_nodes(nodes: Content):
+    response = update_index(nodes.url_and_content)
+    return response  
+
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

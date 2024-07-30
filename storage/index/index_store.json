@@ -1,1 +1,0 @@
-{"index_store/data": {"knowledge_tracing": {"__type__": "vector_store", "__data__": "{\"index_id\": \"knowledge_tracing\", \"summary\": null, \"nodes_dict\": {\"23529a5c-c600-4b4f-875d-1741a9dcddff\": \"23529a5c-c600-4b4f-875d-1741a9dcddff\", \"bf31bb82-68c1-468d-b326-a6126e701978\": \"bf31bb82-68c1-468d-b326-a6126e701978\"}, \"doc_id_dict\": {}, \"embeddings_dict\": {}}"}}}

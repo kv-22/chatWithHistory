@@ -19,7 +19,7 @@ function showIndicator() {
 
 
 function storeContentInLocalStorage(web_url, content) {
-  chrome.storage.local.get('storage_container', function (result) {
+  chrome.storage.local.get('storage_container', async function (result) {
     const storage_container = result.storage_container || {}; // get previous content
 
     if (web_url in storage_container) {
@@ -32,6 +32,19 @@ function storeContentInLocalStorage(web_url, content) {
           console.error('Error setting local storage:', chrome.runtime.lastError);
         } else {
           console.log('Content stored successfully.');
+        }
+      });
+
+      // send to background to send to backend
+      chrome.runtime.sendMessage({
+        action: 'parseAndStore',
+        payload: { web_url, content }
+      }, function (response) {
+        console.log(response.success);
+        if (response && response.success) {
+          console.log('Content parsed and stored successfully.');
+        } else {
+          console.error('Error parsing or storing content:', response.error);
         }
       });
     }
