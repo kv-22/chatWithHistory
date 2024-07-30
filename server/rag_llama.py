@@ -16,6 +16,7 @@ Settings.llm = OpenAI(temperature=0.0, model="gpt-3.5-turbo", api_key=OPENAI_API
 Settings.embed_model = OpenAIEmbedding()
 
 def parse_and_store(url_content: dict):
+    directory = './storage/history'
     documents = [Document(text=content, metadata={"url": url}, excluded_embed_metadata_keys = ["url"]) for url, content in url_content.items()]
     
     parser = HTMLNodeParser(tags=["p"])
@@ -25,54 +26,55 @@ def parse_and_store(url_content: dict):
         node.text = re.sub(r'\s+', ' ', node.text).strip()
         node.text = truncate_text(node.text)
 
-    if not index_exists():
-        create_index(nodes)
+    if not index_exists(directory):
+        create_index(nodes, directory)
     else:
-        index = build_index()
+        index = build_index(directory)
         index.insert_nodes(nodes)
-        index.storage_context.persist(persist_dir="./storage/index")
+        index.storage_context.persist(persist_dir=directory)
         
     return 'Parsed and Stored Successfully.'
 
         
 def addNodes(all_notes):
+    directory = './storage/notes'
     documents = [Document(text=" ".join(notes), id_ = url) for url, notes in all_notes.items()]
     # documents = [Document(text=t) for t in all_notes] # old
     parser = SentenceSplitter()
     nodes = parser.get_nodes_from_documents(documents)
     
-    if not index_exists():
-        create_index(nodes)
+    if not index_exists(directory):
+        create_index(nodes, directory)
     else:
-        index = build_index()
+        index = build_index(directory)
         index.insert_nodes(nodes)
-        index.storage_context.persist(persist_dir="./storage/index")
+        index.storage_context.persist(persist_dir=directory)
 
     return 'Saved nodes successfully.'
 
-def index_exists():
+def index_exists(directory):
     # check if index exists
-    persist_directory = './storage/index'
     index_files = ['default__vector_store.json', 'docstore.json', 'index_store.json', 'graph_store.json', 'image__vector_store.json']
-    index_exists = all(os.path.exists(os.path.join(persist_directory, file)) for file in index_files)
+    index_exists = all(os.path.exists(os.path.join(directory, file)) for file in index_files)
 
     return index_exists
 
-def create_index(nodes):
+def create_index(nodes, directory):
     index = VectorStoreIndex(nodes)
     index.set_index_id("knowledge_tracing")
-    index.storage_context.persist("./storage/index")
+    index.storage_context.persist(persist_dir=directory)
     
     
-def build_index():
+def build_index(directory):
     # rebuild storage context
-    storage_context = StorageContext.from_defaults(persist_dir="./storage/index")
+    storage_context = StorageContext.from_defaults(persist_dir=directory)
     # load index
     simple_vc_index = load_index_from_storage(storage_context, index_id="knowledge_tracing")
     return simple_vc_index
 
 def retrieve(question):
-    index = build_index()
+    directory = './storage/notes'
+    index = build_index(directory)
     retriever = index.as_retriever(similarity_top_k=3)
     nodes = retriever.retrieve(question)
     text = ''
@@ -82,7 +84,8 @@ def retrieve(question):
         
 
 def query(question):
-    index = build_index()
+    directory = './storage/history'
+    index = build_index(directory)
     query_engine = index.as_query_engine(similarity_top_k=10, node_postprocessors=[SimilarityPostprocessor(similarity_cutoff=0.75)])
     response = query_engine.query(question)
     print(response.source_nodes)
@@ -97,14 +100,15 @@ def query(question):
 
 # should be called when adding or deleting notes on a webpage already visited 
 def update_index(all_notes):
-    index=build_index()
+    directory = './storage/notes'
+    index=build_index(directory)
     for id, note in all_notes.items():
         print(id)
         if id in index.ref_doc_info:
             print('doc exists')
             doc = Document(text=" ".join(note), id_=id)
             index.update_ref_doc(doc, update_kwargs={"delete_kwargs": {"delete_from_docstore": True}})
-            index.storage_context.persist(persist_dir="./storage/index")
+            index.storage_context.persist(persist_dir=directory)
             
     return 'Updated successfully.'
 
