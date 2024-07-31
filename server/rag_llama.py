@@ -118,3 +118,19 @@ def truncate_text(text, max_length=32000): # 8192 tokens each of 4 char is appro
         return truncated_text
     else:
         return text
+
+# query that can be used with both notes and history
+def query2(question):
+    index = build_index()
+    query_engine = index.as_query_engine(similarity_top_k=10, node_postprocessors=[SimilarityPostprocessor(similarity_cutoff=0.75)])
+    response = query_engine.query(question)
+    print(response.source_nodes)
+    
+    sources = [node.metadata['url'] if node.metadata['category'] == 'history' else node.text for node in response.source_nodes]
+
+    print(sources)
+    response_and_url = {'gpt_answer': response.response, 'sources': sources}
+    if sources:
+        return response_and_url
+    else: 
+        return response.response
