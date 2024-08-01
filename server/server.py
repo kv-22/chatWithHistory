@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from rag_llama import parse_and_store, addNodes, retrieve, query, update_index
+from rag_llama import parse_and_store, addNodes, retrieve, query, update_index, query2
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -12,6 +12,9 @@ class Notes(BaseModel):
 
 class Question(BaseModel):
     question: str
+
+class NoteID(BaseModel):
+    id_note: str
 
 
 app = FastAPI()
@@ -48,8 +51,8 @@ async def get_answer_general(ques: Question):
     
 
 @app.post("/update_nodes")
-async def update_nodes(nodes: Content):
-    response = update_index(nodes.url_and_content)
+async def update_nodes(id: NoteID):
+    response = update_index(id.id_note)
     return response  
 
 if __name__ == "__main__":

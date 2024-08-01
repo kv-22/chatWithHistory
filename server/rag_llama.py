@@ -37,7 +37,7 @@ def parse_and_store(url_content: dict):
 
         
 def addNodes(all_notes):
-    documents = [Document(text=" ".join(notes), id_ = url, metadata={"category": "note"}) for url, notes in all_notes.items()]
+    documents = [Document(text=notes, id_ = url, metadata={"category": "note"}) for url, notes in all_notes.items()]
     parser = SentenceSplitter()
     nodes = parser.get_nodes_from_documents(documents)
     
@@ -100,15 +100,24 @@ def query(question):
 
 
 # should be called when adding or deleting notes on a webpage already visited 
-def update_index(all_notes):
+# def update_index(all_notes):
+#     index=build_index()
+#     for id, note in all_notes.items():
+#         print(id)
+#         if id in index.ref_doc_info:
+#             print('doc exists')
+#             doc = Document(text=note, id_=id, metadata={"category": "note"})
+#             index.update_ref_doc(doc, update_kwargs={"delete_kwargs": {"delete_from_docstore": True}})
+#             index.storage_context.persist(persist_dir="./storage/index")
+            
+#     return 'Updated successfully.'
+
+
+# new update that should delete a note 
+def update_index(id):
     index=build_index()
-    for id, note in all_notes.items():
-        print(id)
-        if id in index.ref_doc_info:
-            print('doc exists')
-            doc = Document(text=" ".join(note), id_=id, metadata={"category": "note"})
-            index.update_ref_doc(doc, update_kwargs={"delete_kwargs": {"delete_from_docstore": True}})
-            index.storage_context.persist(persist_dir="./storage/index")
+    index.delete_ref_doc(id, delete_from_docstore=True)
+    index.storage_context.persist(persist_dir="./storage/index")
             
     return 'Updated successfully.'
 
