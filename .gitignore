@@ -12,3 +12,6 @@ __pycache__/
 
 # Ignore SASS config files
 .sass-cache
+
+# Ignore the database
+/storage/
