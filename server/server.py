@@ -46,7 +46,7 @@ async def retrieve_content(ques: Question):
 
 @app.post("/query")
 async def get_answer_general(ques: Question):
-    response = query(ques.question)
+    response = query2(ques.question)
     return {"message": "Chat completed successfully.", "answer": response}
     
 

@@ -10,6 +10,9 @@ from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.postprocessor import SimilarityPostprocessor
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.core.vector_stores.types import ExactMatchFilter, MetadataFilters
+from llama_index.core.node_parser import SentenceWindowNodeParser
+from llama_index.core.postprocessor import MetadataReplacementPostProcessor
+from llama_index.core.postprocessor import KeywordNodePostprocessor
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
@@ -25,12 +28,21 @@ def parse_and_store(url_content: dict):
     for node in nodes:
         node.text = re.sub(r'\s+', ' ', node.text).strip()
         node.text = truncate_text(node.text)
+    
+    
+    # sentence window node parser to use after html parser
+    sentence_window_node_parser = SentenceWindowNodeParser.from_defaults(
+        window_size=3,
+        window_metadata_key="window",
+        original_text_metadata_key="original_text",)
+
+    sentence_window_node_parser_nodes = sentence_window_node_parser(nodes)
 
     if not index_exists():
-        create_index(nodes)
+        create_index(sentence_window_node_parser_nodes)
     else:
         index = build_index()
-        index.insert_nodes(nodes)
+        index.insert_nodes(sentence_window_node_parser_nodes)
         index.storage_context.persist(persist_dir="./storage/index")
         
     return 'Parsed and Stored Successfully.'
@@ -40,6 +52,7 @@ def addNodes(all_notes):
     documents = [Document(text=notes, id_ = url, metadata={"category": "note"}) for url, notes in all_notes.items()]
     parser = SentenceSplitter()
     nodes = parser.get_nodes_from_documents(documents)
+    
     
     if not index_exists():
         create_index(nodes)
@@ -78,9 +91,11 @@ def retrieve(question):
     index = build_index()
     retriever = index.as_retriever(similarity_top_k=3, filters=filters)
     nodes = retriever.retrieve(question)
+    print(nodes)
     text = ''
     for node in nodes:
         text = text + node.text + "\n\n"
+    print(text)
     return text
         
 
@@ -97,20 +112,6 @@ def query(question):
         return response_and_url
     else: 
         return response.response
-
-
-# should be called when adding or deleting notes on a webpage already visited 
-# def update_index(all_notes):
-#     index=build_index()
-#     for id, note in all_notes.items():
-#         print(id)
-#         if id in index.ref_doc_info:
-#             print('doc exists')
-#             doc = Document(text=note, id_=id, metadata={"category": "note"})
-#             index.update_ref_doc(doc, update_kwargs={"delete_kwargs": {"delete_from_docstore": True}})
-#             index.storage_context.persist(persist_dir="./storage/index")
-            
-#     return 'Updated successfully.'
 
 
 # new update that should delete a note 
@@ -130,16 +131,38 @@ def truncate_text(text, max_length=32000): # 8192 tokens each of 4 char is appro
 
 # query that can be used with both notes and history
 def query2(question):
-    index = build_index()
-    query_engine = index.as_query_engine(similarity_top_k=10, node_postprocessors=[SimilarityPostprocessor(similarity_cutoff=0.75)])
-    response = query_engine.query(question)
-    print(response.source_nodes)
+    keywords = question.split()
+    print(keywords)
     
+    index = build_index()
+    query_engine = index.as_query_engine(similarity_top_k = 20, node_postprocessors=[MetadataReplacementPostProcessor(target_metadata_key="window"), SimilarityPostprocessor(similarity_cutoff=0.75), KeywordNodePostprocessor(required_keywords=keywords)])
+    response = query_engine.query(question)
+    print(len(response.source_nodes))
+    for node in response.source_nodes:
+        # print(node.metadata['url'])
+        # print(node.metadata['original_text'])
+        print(node.text)
+        print(node.score)
+        print("\n\n")
     sources = [node.metadata['url'] if node.metadata['category'] == 'history' else node.text for node in response.source_nodes]
+    
+    original_list = sources
+    unique_list = list(dict.fromkeys(original_list))
+    
+    # window = response.source_nodes[0].node.metadata["window"]
+    # sentence = response.source_nodes[0].node.metadata["original_text"]
 
-    print(sources)
-    response_and_url = {'gpt_answer': response.response, 'sources': sources}
-    if sources:
+    # print(f"Window: {window}")
+    # print("------------------")
+    # print(f"Original Sentence: {sentence}")
+
+    # print(sources)
+    response_and_url = {'gpt_answer': response.response, 'sources': unique_list}
+    if unique_list:
         return response_and_url
     else: 
         return response.response
+
+
+
+    
