@@ -13,6 +13,9 @@ from llama_index.core.vector_stores.types import ExactMatchFilter, MetadataFilte
 from llama_index.core.node_parser import SentenceWindowNodeParser
 from llama_index.core.postprocessor import MetadataReplacementPostProcessor
 from llama_index.core.postprocessor import KeywordNodePostprocessor
+from nltk.corpus import stopwords
+
+stop_words = set(stopwords.words('english'))
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
@@ -133,9 +136,11 @@ def truncate_text(text, max_length=32000): # 8192 tokens each of 4 char is appro
 def query2(question):
     keywords = question.split()
     print(keywords)
+    keywords= [word for word in keywords if word not in stop_words]
+    print(keywords)
     
     index = build_index()
-    query_engine = index.as_query_engine(similarity_top_k = 20, node_postprocessors=[MetadataReplacementPostProcessor(target_metadata_key="window"), SimilarityPostprocessor(similarity_cutoff=0.75), KeywordNodePostprocessor(required_keywords=keywords)])
+    query_engine = index.as_query_engine(similarity_top_k = 15, node_postprocessors=[MetadataReplacementPostProcessor(target_metadata_key="window"), SimilarityPostprocessor(similarity_cutoff=0.75), KeywordNodePostprocessor(required_keywords=keywords)])
     response = query_engine.query(question)
     print(len(response.source_nodes))
     for node in response.source_nodes:
