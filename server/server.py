@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from pydantic import BaseModel
+from sentence_transformers import SentenceTransformer
 from rag_llama import parse_and_store, addNodes, retrieve, query, update_index, query2
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
@@ -27,6 +28,14 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+@app.post("/embed")
+async def embed_texts(request: Request):
+    data = await request.json()
+    texts = data['texts']
+    embeddings = model.encode(texts)
+    return {"embeddings": embeddings.tolist()}
 
 @app.post("/parse")
 async def get_parse(content: Content):
