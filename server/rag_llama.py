@@ -136,7 +136,7 @@ def truncate_text(text, max_length=32000): # 8192 tokens each of 4 char is appro
 def query2(question):
     keywords = question.split()
     print(keywords)
-    keywords= [word for word in keywords if word not in stop_words]
+    keywords= [word for word in keywords if word.lower() not in stop_words]
     print(keywords)
     
     index = build_index()
@@ -167,7 +167,10 @@ def query2(question):
         return response_and_url
     else: 
         return response.response
-
-
-
     
+
+
+
+
+
+
